@@ -50,7 +50,9 @@ int main(int argc, char* argv[]) {
   std::vector<std::shared_ptr<GoodFeaturesToTrackDetector>> detector;
   std::vector<std::shared_ptr<SparsePyrLKOpticalFlow>> tracker, tracker_back;
   std::vector<std::vector<uint8_t>> status, status_back;
+  // useless
   std::vector<std::vector<float>> err;
+  std::vector<std::string> type_string{{"opencv", "opencv cuda", "visionworks"}};
 
   FeatureParameters params =
       argc > 2 ? FeatureParameters::from_yaml(argv[2]) : FeatureParameters{};
@@ -83,10 +85,10 @@ int main(int argc, char* argv[]) {
     // cv::cvtColor(img_bgr, img_next, CV_BGR2GRAY);
 
     for (int i = 0; i < detector.size(); ++i) {
-      if (!detector[i] || !tracker[i]) {
+      if (!detector[i] || !tracker[i] || !tracker_back[i]) {
         continue;
       }
-      Timer _{std::to_string(i)};
+      Timer _{type_string[i]};
       detector[i]->detect(img_prev, pt_prev[i], mask);
       pt_prev_back[i] = pt_prev[i];
       tracker[i]->calc(img_prev, img_next, pt_prev[i], pt_next[i], status[i],
@@ -96,17 +98,20 @@ int main(int argc, char* argv[]) {
     }
 
     for (int i = 0; i < detector.size(); ++i) {
-      if (!detector[i] || !tracker[i]) {
+      if (!detector[i] || !tracker[i] || !tracker_back[i]) {
         continue;
       }
+      int cnt = 0;
       for (int j = 0; j < pt_prev[0].size(); ++j) {
         cv::Scalar color{0, 0, 0};
         color[i] = 255;
         if (status[i][j] && (j >= status_back[i].size() || status_back[i][j])) {
+          ++cnt;
           cv::arrowedLine(img_bgr, pt_prev[i][j], pt_next[i][j], color, 1, 8,
                           0);
         }
       }
+      std::cout << type_string[i] << " track " << cnt << std::endl;
     }
 
     cv::imshow("optical flow", img_bgr);
@@ -119,6 +124,7 @@ int main(int argc, char* argv[]) {
       pt_prev[i].clear();
       pt_next[i].clear();
     }
+    std::cout << "**********" << std::endl;
   }
 
   return 0;

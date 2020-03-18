@@ -116,7 +116,7 @@ void GoodFeaturesToTrackDetectorNvx::detect(cv::InputArray image,
     vxQueryArray(vx, VX_ARRAY_ATTRIBUTE_NUMITEMS, &num_items,
                  sizeof(num_items));
     vx_size stride = sizeof(vx_size);
-    void* base = NULL;
+    void* base = nullptr;
     vxAccessArrayRange(vx, 0, num_items, &stride, &base, VX_READ_ONLY);
 
     vec->clear();
