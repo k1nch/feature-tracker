@@ -233,5 +233,11 @@ void SparsePyrLKOpticalFlowNvx::calc(cv::InputArray prev_img,
   vxReleaseScalar(&epsilon_vx);
   vxReleaseScalar(&num_iters_vx);
   vxReleaseScalar(&use_init_est_vx);
+  if (prev_img.channels() != 1) {
+    vxReleaseImage(&prev_vx_gray);
+  }
+  if (next_img.channels() != 1) {
+    vxReleaseImage(&next_vx_gray);
+  }
 }
 #endif
